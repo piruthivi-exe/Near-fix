@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NearFix: plumbers, electricians and painters near you</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Hind+Madurai:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="/">NearFix</a>
+    <nav>
+      <a class="link" href="join.html" data-i18n="join">Join as a worker</a>
+      <select class="lang" id="lang" aria-label="Language">
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="panel" aria-label="Filters">
+      <h1 data-i18n="headline">Find a worker a few streets from your home</h1>
+
+      <button class="btn go" id="locate" type="button" data-i18n="locate">Use my location</button>
+      <p class="status" id="locStatus" role="status"></p>
+
+      <div class="field">
+        <span data-i18n="service">What do you need?</span>
+        <div class="chips" id="chips" role="group"></div>
+      </div>
+
+      <label class="field">
+        <span><span data-i18n="radius">Within</span> <output id="radiusOut">5</output> km</span>
+        <input type="range" id="radius" min="1" max="20" value="5">
+      </label>
+
+      <div class="row2">
+        <label class="field"><span data-i18n="maxVisit">Max visit charge (₹)</span>
+          <input type="number" id="maxVisit" min="0" step="10" placeholder="Any"></label>
+        <label class="field"><span data-i18n="sort">Sort by</span>
+          <select id="sort">
+            <option value="distance" data-i18n="sortDistance">Nearest</option>
+            <option value="price" data-i18n="sortPrice">Lowest price</option>
+            <option value="rating" data-i18n="sortRating">Best rated</option>
+          </select></label>
+      </div>
+
+      <button class="btn sos" id="sos" type="button" data-i18n="sos">Pipe burst or power cut? Get someone now</button>
+      <p class="status" id="sosStatus" role="status"></p>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <h2 id="count"></h2>
+      <div id="list"></div>
+    </section>
+  </main>
+
+  <dialog id="book">
+    <form method="dialog" id="bookForm">
+      <h2 id="bookTitle"></h2>
+      <label class="field"><span data-i18n="yourName">Your name</span><input name="name" required maxlength="60"></label>
+      <label class="field"><span data-i18n="yourPhone">Mobile number</span><input name="phone" required inputmode="numeric" pattern="[6-9][0-9]{9}" maxlength="10"></label>
+      <label class="field"><span data-i18n="problem">What is the problem?</span><textarea name="problem" rows="3" maxlength="500"></textarea></label>
+      <p class="status" id="bookStatus" role="status"></p>
+      <div class="actions">
+        <button class="btn go" type="submit" data-i18n="send">Send request</button>
+        <button class="btn alt" type="button" id="bookCancel" data-i18n="close">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

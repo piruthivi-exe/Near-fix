@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Join NearFix as a worker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Hind+Madurai:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="bar"><a class="brand" href="/">NearFix</a><a class="link" href="/">Find a worker</a></header>
+  <main class="form-page">
+    <h1>List your work. Keep what you earn.</h1>
+    <p class="note">Set your own visit charge and rates. Customers see them before they call.</p>
+    <form id="join" class="panel" style="position:static">
+      <label class="field"><span>Your name</span><input name="name" required maxlength="60"></label>
+      <label class="field"><span>Mobile number</span><input name="phone" required inputmode="numeric" pattern="[6-9][0-9]{9}" maxlength="10"></label>
+      <label class="field"><span>Your trade</span><select name="service" id="service"></select></label>
+      <label class="field"><span>Years of experience</span><input name="years" type="number" min="0" max="60" value="1"></label>
+      <label class="field"><span>Visit charge (₹, enter 0 if free)</span><input name="visitCharge" type="number" min="0" max="5000" value="100" required></label>
+      <div class="field"><span>Your rates</span><div id="rates" style="display:grid;gap:.5rem"></div>
+        <button class="btn alt" type="button" id="addRate">Add another rate</button></div>
+      <button class="btn go" type="button" id="locate">Set my work location</button>
+      <p class="status" id="locStatus" role="status"></p>
+      <button class="btn" type="submit">Create my listing</button>
+      <p class="status" id="out" role="status"></p>
+    </form>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let loc = null;
+    function addRate(task = '', price = '') {
+      const row = document.createElement('div'); row.className = 'rate-row';
+      row.innerHTML = '<input placeholder="Job, e.g. Tap repair" maxlength="60"><input type="number" min="0" placeholder="₹">';
+      row.children[0].value = task; row.children[1].value = price; $('rates').append(row);
+    }
+    addRate(); addRate();
+    $('addRate').onclick = () => addRate();
+    fetch('/api/services').then((r) => r.json()).then((list) =>
+      $('service').replaceChildren(...list.map((s) => new Option(s.en, s.id))));
+    $('locate').onclick = () => navigator.geolocation.getCurrentPosition(
+      (p) => { loc = { lat: p.coords.latitude, lng: p.coords.longitude }; $('locStatus').className = 'status'; $('locStatus').textContent = 'Location saved.'; },
+      () => { $('locStatus').className = 'status err'; $('locStatus').textContent = 'Allow location access to continue.'; });
+    $('join').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const out = $('out');
+      if (!loc) { out.className = 'status err'; out.textContent = 'Set your work location first.'; return; }
+      const f = Object.fromEntries(new FormData(e.target));
+      const rates = [...$('rates').children].map((r) => ({ task: r.children[0].value, price: r.children[1].value }));
+      const res = await fetch('/api/workers', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...f, ...loc, rates }) });
+      const data = await res.json();
+      out.className = 'status' + (res.ok ? '' : ' err');
+      out.textContent = res.ok ? 'Listing created. Customers nearby can now find you.' : data.errors.join('. ');
+    });
+  </script>
+</body>
+</html>
